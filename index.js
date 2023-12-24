@@ -1,20 +1,49 @@
+const bodyParser = require('body-parser');
 const express = require('express')
 const app = express()
 const port = 3000
 
+app.use(bodyParser.json());
+function middleware1(req, res, next){
+    // console.log(req.body);
+    // res.send("from middleware , fuck you");
+    next();
+}
+app.use(middleware1);
 function calculateSum(req, res){
     var sum =0;
-    for(var i =0;i<100;i++){
+    console.log(req.query);
+    var counter =  req.query.count;
+    for(var i =1;i<counter;i++){
         sum+=i;
     }
+    var mul = 1;
+    for(var i =1;i<counter;i++){
+        mul*=i;
+    }
+    var resobj = {
+        sum : sum,
+        mul : mul
+    }
     // return sum;
-    res.send('Hello World! the sum is :' + sum);
+    res.send(resobj);
 }
 
 // when request method GET 
 //default route '/'
 app.get('/', calculateSum);
-
+// app.get('/',(req,res)=>{
+//     res.send(`<!DOCTYPE html>
+//     <head>
+//         <title> 100x project
+            
+//         </title>
+//     </head>
+    
+//     <body>
+//         <p> hi there</p>
+//     </body>`);
+// })
 
 function startListening(){
     console.log(`Example app listening on port ${port}`)
