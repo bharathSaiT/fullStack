@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            todo App
+        </title>
+    </head>
+    <body>
+        <div>
+            Todo title 
+            <input id="title" type="text"></input>
+            <br>
+            <br>
+            Todo Description
+            <input id="description" type="text"></input>
+            <br>
+            <br>
+            <button id="sendTodo" onclick="onPress()"> send todo</button>
+        </div>
+        <div id="listData">
+
+        </div>
+    </body>
+    <script>
+
+        function deleteTodo(id){
+            fetch("http://localhost:3000/todos/"+id, {
+                method:"DELETE"
+            }).then((response)=>{
+              response.json().then((data)=>{
+                console.log(data);
+                var list = document.getElementById("listData");
+                var child = document.getElementById(id);
+                list.removeChild(child);
+              })
+            })
+            // console.log(id);
+        }
+        function getData(){
+            fetch("http://localhost:3000/todos",{
+                method: "GET"
+            }).then((resp)=>{
+                resp.json().then((data)=>{
+                    console.log(data);
+                    var parentElement = document.getElementById("listData");
+                    // parentElement.innerHTML= JSON.stringify(data);
+                    var dataL  = data.length;
+
+                    for(var i =0;i<dataL;i++){
+                        var body = document.createElement("div");
+                        var title = document.createElement("span");
+                        var description = document.createElement("span");
+
+                        var button = document.createElement("button");
+
+                        title.innerHTML = data[i].title;
+                        description.innerHTML = data[i].description;
+                        button.innerHTML="DELETE";
+                        button.setAttribute("onClick", "deleteTodo("+ data[i].id+")");
+                        body.setAttribute("id",data[i].id);
+
+                        body.appendChild(title);
+                        body.appendChild(description);
+                        body.appendChild(button);
+
+                        parentElement.appendChild(body);
+                    }
+                })
+            })
+        }
+        getData();
+
+        function onPress(){
+            // alert("hi");
+            var title = document.getElementById("title").value;
+            var description = document.getElementById("description").value;
+            fetch("http://localhost:3000/todos", { 
+                method:"POST",
+                body : JSON.stringify({
+                    title: title,
+                    description : description
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+        }).then((resp)=>{
+                resp.json().then((data)=>{
+                    console.log(data);
+                    //we should check if the request is succesful here
+                    //and handle the failed request seperately
+                    var curr = data.splice(-1);
+                    var listArea = document.getElementById("listData");
+                    
+                    var child =document.createElement("div");
+                    var gc1 = document.createElement("span");
+                    var gc2 = document.createElement("span");
+                    var gc3 = document.createElement("button");
+
+                    gc1.innerHTML = title;
+                    gc2.innerHTML = description;
+                    gc3.innerHTML="DELETE";
+                    // button.setAttribute("onClick", "deleteTodo("+ data[i].id+")");
+                    console.log(curr[0]);
+                    gc3.setAttribute("onClick" , "deleteTodo("+curr[0].id+")");
+
+                    child.setAttribute("id",curr[0].id);
+                    child.appendChild(gc1);
+                    child.appendChild(gc2);
+                    child.appendChild(gc3);
+
+                    listArea.appendChild(child);
+                })
+            });
+
+            //clear the form
+        }
+
+    </script>
+</html>
